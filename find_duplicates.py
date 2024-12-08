@@ -3,9 +3,13 @@ import shutil
 from collections import defaultdict
 
 # Folder paths
-ROOT_DIR = '/Volumes/Photo backup'
-COPIES_DIR = '/Volumes/Photo backup/copies'
-ORIGINALS_DIR = '/Volumes/Photo backup/originals'
+# ROOT_DIR = '/Volumes/Photo backup'
+# COPIES_DIR = '/Volumes/Photo backup/copies'
+# ORIGINALS_DIR = '/Volumes/Photo backup/originals'
+
+ROOT_DIR = '/run/media/scottquintana/BackupDrive2'
+COPIES_DIR = '/run/media/scottquintana/BackupDrive2/copies'
+ORIGINALS_DIR = '/run/media/scottquintana/BackupDrive2/originals'
 
 # List of photo and video file extensions (case insensitive)
 PHOTO_VIDEO_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.heic', '.webp',
