@@ -1,6 +1,5 @@
 import os
 import shutil
-import hashlib
 from collections import defaultdict
 
 # Folder paths
@@ -25,64 +24,54 @@ def is_photo_or_video(filename):
     _, ext = os.path.splitext(filename)
     return ext.lower() in PHOTO_VIDEO_EXTENSIONS
 
-def calculate_hash(file_path):
-    """Calculate MD5 hash of a file."""
-    try:
-        md5 = hashlib.md5()
-        with open(file_path, 'rb') as f:
-            while chunk := f.read(8192):
-                md5.update(chunk)
-        return md5.hexdigest()
-    except Exception as e:
-        print(f"Error hashing {file_path}: {e}")
-        problem_files.append((file_path, str(e)))
-        return None
-
-def find_files_by_hash(root_dir):
-    """Walk through the root directory and find photo and video files, storing them by hash."""
-    files_by_hash = defaultdict(list)
+def find_files_by_name_and_size(root_dir):
+    """Walk through the root directory and find photo and video files, storing them by name and size."""
+    files_by_name_and_size = defaultdict(list)
     for dirpath, _, filenames in os.walk(root_dir):
         for filename in filenames:
-
             if is_photo_or_video(filename):
                 file_path = os.path.join(dirpath, filename)
-                file_hash = calculate_hash(file_path)
-                print(f"Processing: {file_path}")
-                if file_hash:
-                    files_by_hash[file_hash].append(file_path)
-    return files_by_hash
+                try:
+                    file_size = os.path.getsize(file_path)
+                    files_by_name_and_size[(filename, file_size)].append(file_path)
+                except Exception as e:
+                    print(f"Error processing {file_path}: {e}")
+    return files_by_name_and_size
 
-def move_file(src, dest):
-    """Move a file and handle exceptions."""
+def move_file(src, base_dir, dest_dir):
+    """Move a file while preserving the closest folder structure."""
+    relative_path = os.path.relpath(src, ROOT_DIR)
+    dest_path = os.path.join(dest_dir, relative_path)
+
+    # Ensure the destination directory exists
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+
     try:
-        shutil.move(src, dest)
-        print(f"Moved: {src} -> {dest}")
+        shutil.move(src, dest_path)
+        print(f"Moved: {src} -> {dest_path}")
     except Exception as e:
         print(f"Error moving {src}: {e}")
         problem_files.append((src, str(e)))
 
 def move_files(files_dict):
     """Move duplicates to /copies and originals to /originals."""
-    for file_hash, paths in files_dict.items():
+    for (filename, size), paths in files_dict.items():
         if len(paths) > 1:
             # Move the first file to /originals, rest to /copies
             original = paths.pop(0)
-            dest_original = os.path.join(ORIGINALS_DIR, os.path.basename(original))
-            move_file(original, dest_original)
+            move_file(original, ROOT_DIR, ORIGINALS_DIR)
 
             for duplicate in paths:
-                dest_copy = os.path.join(COPIES_DIR, os.path.basename(duplicate))
-                move_file(duplicate, dest_copy)
+                move_file(duplicate, ROOT_DIR, COPIES_DIR)
         else:
             # Only one file found, move it to /originals
             original = paths[0]
-            dest_original = os.path.join(ORIGINALS_DIR, os.path.basename(original))
-            move_file(original, dest_original)
+            move_file(original, ROOT_DIR, ORIGINALS_DIR)
 
 def main():
     create_dirs()
     print("Scanning for photo and video files...")
-    files_dict = find_files_by_hash(ROOT_DIR)
+    files_dict = find_files_by_name_and_size(ROOT_DIR)
     print("Moving files...")
     move_files(files_dict)
 
