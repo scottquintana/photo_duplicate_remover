@@ -19,17 +19,14 @@ PHOTO_VIDEO_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.he
 # List to store problem files
 problem_files = []
 
-
 def create_dirs():
     """Create final directory if it doesn't exist."""
     os.makedirs(FINAL_DIR, exist_ok=True)
-
 
 def is_photo_or_video(filename):
     """Check if a file is a photo or video based on its extension."""
     _, ext = os.path.splitext(filename)
     return ext.lower() in PHOTO_VIDEO_EXTENSIONS
-
 
 def calculate_hash(file_path):
     """Calculate MD5 hash of a file."""
@@ -43,7 +40,6 @@ def calculate_hash(file_path):
         print(f"Error hashing {file_path}: {e}")
         problem_files.append((file_path, str(e)))
         return None
-
 
 def find_files_by_hash(root_dir):
     """Walk through the root directory and find photo and video files, storing them by hash."""
@@ -64,7 +60,6 @@ def find_files_by_hash(root_dir):
             files_by_hash[file_hash].append(file_path)
 
     return files_by_hash
-
 
 def get_preferred_folder(file_paths):
     """Return the preferred folder name, prioritizing named folders over year-only folders."""
@@ -89,7 +84,6 @@ def get_preferred_folder(file_paths):
         # Fallback to the first path if no valid folder is found
         return file_paths[0], os.path.basename(os.path.dirname(file_paths[0]))
 
-
 def move_file(src, folder_name):
     """Move a file to the final directory, using the specified folder name."""
     try:
@@ -102,5 +96,42 @@ def move_file(src, folder_name):
         print(f"Moved: {src} -> {dest_path}")
     except Exception as e:
         print(f"Error moving {src}: {e}")
+        problem_files.append((src, str(e)))
+
+def move_unique_files(files_dict):
+    """Move one unique copy of each file to the final directory."""
+    total_files = sum(len(paths) for paths in files_dict.values())
+    with tqdm(total=total_files, desc="Moving Files", unit="file") as pbar:
+        for file_hash, paths in files_dict.items():
+            # Get the preferred folder name for the unique file
+            unique_file, preferred_folder = get_preferred_folder(paths)
+            move_file(unique_file, preferred_folder)
+            pbar.update(len(paths))
+
+def main():
+    create_dirs()
+    print("Scanning for photo and video files...")
+    files_dict = find_files_by_hash(ROOT_DIR)
+    print("Moving files to the final directory...")
+    move_unique_files(files_dict)
+
+    # Print problem files at the end
+    if problem_files:
+        print("\nThe following files could not be moved due to permission errors or other issues:")
+        for file_path, error in problem_files:
+            print(f"{file_path} - {error}")
+    else:
+        print("\nAll files were moved successfully!")
+
+    print("Done!")
+
+if __name__ == "__main__":
+    # Ensure tqdm is installed
+    try:
+        from tqdm import tqdm
+    except ImportError:
+        print("Installing tqdm for progress tracking...")
+        os.system("pip install tqdm")
+    main()
 
 
