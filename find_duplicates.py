@@ -1,8 +1,8 @@
 import os
 import shutil
-import hashlib
+import xxhash
 from collections import defaultdict
-from tqdm import tqdm  # For progress bar
+from tqdm import tqdm
 import re
 
 # Folder paths
@@ -11,7 +11,6 @@ FINAL_DIR = '/Volumes/Photo backup/final'
 
 # ROOT_DIR = '/run/media/scottquintana/BackupDrive2'
 # FINAL_DIR = '/run/media/scottquintana/BackupDrive2/final'
-
 # List of photo and video file extensions (case insensitive)
 PHOTO_VIDEO_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.heic', '.webp',
                           '.mp4', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.mpeg', '.3gp', '.mts'}
@@ -29,13 +28,13 @@ def is_photo_or_video(filename):
     return ext.lower() in PHOTO_VIDEO_EXTENSIONS
 
 def calculate_hash(file_path):
-    """Calculate MD5 hash of a file."""
+    """Calculate xxHash of a file."""
     try:
-        md5 = hashlib.md5()
+        hash_xx = xxhash.xxh64()
         with open(file_path, 'rb') as f:
             while chunk := f.read(8192):
-                md5.update(chunk)
-        return md5.hexdigest()
+                hash_xx.update(chunk)
+        return hash_xx.hexdigest()
     except Exception as e:
         print(f"Error hashing {file_path}: {e}")
         problem_files.append((file_path, str(e)))
@@ -126,12 +125,4 @@ def main():
     print("Done!")
 
 if __name__ == "__main__":
-    # Ensure tqdm is installed
-    try:
-        from tqdm import tqdm
-    except ImportError:
-        print("Installing tqdm for progress tracking...")
-        os.system("pip install tqdm")
     main()
-
-
