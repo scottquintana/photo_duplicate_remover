@@ -8,12 +8,15 @@ import re
 # Folder paths
 ROOT_DIR = '/Volumes/Photo backup'
 FINAL_DIR = '/Volumes/Photo backup/final'
+ORIGINALS_DIR = '/Volumes/Photo backup/originals'
 
 # ROOT_DIR = '/run/media/scottquintana/BackupDrive2'
 # FINAL_DIR = '/run/media/scottquintana/BackupDrive2/final'
 # List of photo and video file extensions (case insensitive)
-PHOTO_VIDEO_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.heic', '.webp',
-                          '.mp4', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.mpeg', '.3gp', '.mts'}
+
+# PHOTO_VIDEO_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.heic', '.webp',
+#                           '.mp4', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.mpeg', '.3gp', '.mts', '.m4v', '.mpg'}
+PHOTO_VIDEO_EXTENSIONS = {'.jpeg'}
 
 # List to store problem files
 problem_files = []
