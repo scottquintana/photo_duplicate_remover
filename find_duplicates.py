@@ -6,11 +6,12 @@ from tqdm import tqdm
 import re
 
 # Folder paths
-ROOT_DIR = '/Volumes/Photo backup'
-FINAL_DIR = '/Volumes/Photo backup/final'
+# ROOT_DIR = '/Volumes/Photo backup'
+# FINAL_DIR = '/Volumes/Photo backup/final'
+#
+ROOT_DIR = '/run/media/scottquintana/BackupDrive2'
+FINAL_DIR = '/run/media/scottquintana/BackupDrive2/final'
 
-# ROOT_DIR = '/run/media/scottquintana/BackupDrive2'
-# FINAL_DIR = '/run/media/scottquintana/BackupDrive2/final'
 # List of photo and video file extensions (case insensitive)
 PHOTO_VIDEO_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.heic', '.webp',
                           '.mp4', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.mpeg', '.3gp', '.mts'}
