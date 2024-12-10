@@ -6,16 +6,16 @@ from tqdm import tqdm
 import re
 
 # Folder paths
-ROOT_DIR = '/Volumes/Photo backup'
-FINAL_DIR = '/Volumes/Photo backup/final'
-ORIGINALS_DIR = '/Volumes/Photo backup/originals'
+ROOT_DIR = '/Volumes/Photo backup'              # Existing drive
+NEW_DRIVE_DIR = '/Volumes/Michelle Photo Backup'      # New hard drive with potential new photos
+FINAL_DIR = '/Volumes/Photo backup/final'       # Destination for unique files
 
 # List of photo and video file extensions (case insensitive)
-
-PHOTO_VIDEO_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.tif', '.heic', '.webp',
-                          '.mp4', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.mpeg', '.3gp', '.mts', '.m4v', '.mpg'
-                          '.doc', '.docx', '.txt', '.zip'}
-# PHOTO_VIDEO_EXTENSIONS = {'.jpeg'}
+PHOTO_VIDEO_EXTENSIONS = {
+    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.tif', '.heic', '.webp',
+    '.mp4', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.mpeg', '.3gp', '.mts', '.m4v', '.mpg',
+    '.doc', '.docx', '.xls', '.xlsx', '.pdf', '.ppt', '.pptx', '.txt', '.csv', '.zip', '.rar', '.7z'
+}
 
 # List to store problem files
 problem_files = []
@@ -55,7 +55,7 @@ def find_files_by_hash(root_dir):
                 file_list.append(file_path)
 
     # Process each file with a progress bar
-    for file_path in tqdm(file_list, desc="Hashing Files", unit="file"):
+    for file_path in tqdm(file_list, desc=f"Hashing Files in {root_dir}", unit="file"):
         file_hash = calculate_hash(file_path)
         if file_hash:
             files_by_hash[file_hash].append(file_path)
@@ -99,22 +99,27 @@ def move_file(src, folder_name):
         print(f"Error moving {src}: {e}")
         problem_files.append((src, str(e)))
 
-def move_unique_files(files_dict):
-    """Move one unique copy of each file to the final directory."""
-    total_files = sum(len(paths) for paths in files_dict.values())
-    with tqdm(total=total_files, desc="Moving Files", unit="file") as pbar:
-        for file_hash, paths in files_dict.items():
-            # Get the preferred folder name for the unique file
-            unique_file, preferred_folder = get_preferred_folder(paths)
-            move_file(unique_file, preferred_folder)
+def move_unique_files(existing_files_dict, new_files_dict):
+    """Move unique files from the new drive to the final directory, maintaining folder preferences."""
+    total_files = sum(len(paths) for paths in new_files_dict.values())
+    with tqdm(total=total_files, desc="Moving Unique Files", unit="file") as pbar:
+        for file_hash, paths in new_files_dict.items():
+            if file_hash not in existing_files_dict:
+                # Get the preferred folder name for the unique file
+                unique_file, preferred_folder = get_preferred_folder(paths)
+                move_file(unique_file, preferred_folder)
             pbar.update(len(paths))
 
 def main():
     create_dirs()
-    print("Scanning for photo and video files...")
-    files_dict = find_files_by_hash(ROOT_DIR)
-    print("Moving files to the final directory...")
-    move_unique_files(files_dict)
+    print("Scanning existing drive for photo and video files...")
+    existing_files_dict = find_files_by_hash(ROOT_DIR)
+
+    print("\nScanning new drive for photo and video files...")
+    new_files_dict = find_files_by_hash(NEW_DRIVE_DIR)
+
+    print("\nIdentifying and moving unique files to the final directory...")
+    move_unique_files(existing_files_dict, new_files_dict)
 
     # Print problem files at the end
     if problem_files:
@@ -122,7 +127,7 @@ def main():
         for file_path, error in problem_files:
             print(f"{file_path} - {error}")
     else:
-        print("\nAll files were moved successfully!")
+        print("\nAll unique files were moved successfully!")
 
     print("Done!")
 
