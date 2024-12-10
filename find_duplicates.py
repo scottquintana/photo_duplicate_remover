@@ -10,8 +10,6 @@ ROOT_DIR = '/Volumes/Photo backup'
 FINAL_DIR = '/Volumes/Photo backup/final'
 ORIGINALS_DIR = '/Volumes/Photo backup/originals'
 
-# ROOT_DIR = '/run/media/scottquintana/BackupDrive2'
-# FINAL_DIR = '/run/media/scottquintana/BackupDrive2/final'
 # List of photo and video file extensions (case insensitive)
 
 PHOTO_VIDEO_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.tif', '.heic', '.webp',
