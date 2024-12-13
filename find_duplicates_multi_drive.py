@@ -7,7 +7,7 @@ import re
 
 # Folder paths
 ROOT_DIR = '/Volumes/Photo backup'              # Existing drive
-NEW_DRIVE_DIR = '/Volumes/Michelle Photo Backup'      # New hard drive with potential new photos
+NEW_DRIVE_DIR = '/Volumes/Madison Backup/Photo Project 2020'      # New hard drive with potential new photos
 FINAL_DIR = '/Volumes/Photo backup/final'       # Destination for unique files
 
 # List of photo and video file extensions (case insensitive)
@@ -47,12 +47,23 @@ def find_files_by_hash(root_dir):
     files_by_hash = defaultdict(list)
     file_list = []
 
-    # Gather all eligible files first
-    for dirpath, _, filenames in os.walk(root_dir):
-        for filename in filenames:
-            if is_photo_or_video(filename):
-                file_path = os.path.join(dirpath, filename)
-                file_list.append(file_path)
+    # Count the number of directories first for the progress bar
+    dir_count = sum(1 for _ in os.walk(root_dir))
+
+    # Initialize the progress bar for scanning directories
+    with tqdm(total=dir_count, desc="Scanning Directories", unit="dir") as pbar:
+        for dirpath, _, filenames in os.walk(root_dir):
+            # Skip any directory that contains the word "thumbnail"
+            if "thumbnail" in dirpath.lower():
+                pbar.update(1)
+                continue
+
+            for filename in filenames:
+                if is_photo_or_video(filename):
+                    file_path = os.path.join(dirpath, filename)
+                    file_list.append(file_path)
+
+            pbar.update(1)  # Update the progress bar for each scanned directory
 
     # Process each file with a progress bar
     for file_path in tqdm(file_list, desc=f"Hashing Files in {root_dir}", unit="file"):
@@ -61,6 +72,15 @@ def find_files_by_hash(root_dir):
             files_by_hash[file_hash].append(file_path)
 
     return files_by_hash
+
+def check_drive_accessibility(drive_dir):
+    """Check if the drive is accessible."""
+    if not os.path.exists(drive_dir):
+        print(f"Error: Cannot access {drive_dir}. Please make sure the drive is connected.")
+        return False
+
+    print("Drive is connected")
+    return True
 
 def get_preferred_folder(file_paths):
     """Return the preferred folder name, prioritizing named folders over year-only folders."""
@@ -110,10 +130,19 @@ def move_unique_files(existing_files_dict, new_files_dict):
                 move_file(unique_file, preferred_folder)
             pbar.update(len(paths))
 
+
 def main():
     create_dirs()
+
+    if not check_drive_accessibility(NEW_DRIVE_DIR):
+        return
+
     print("Scanning existing drive for photo and video files...")
     existing_files_dict = find_files_by_hash(ROOT_DIR)
+
+    # Check if the new drive is accessible before scanning
+    if not check_drive_accessibility(NEW_DRIVE_DIR):
+        return
 
     print("\nScanning new drive for photo and video files...")
     new_files_dict = find_files_by_hash(NEW_DRIVE_DIR)

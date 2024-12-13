@@ -2,7 +2,7 @@ import os
 import shutil
 
 # Path to the root directory where the cleanup should happen
-ROOT_DIR = '/Volumes/Photo backup'
+ROOT_DIR = '/Volumes/Photo backup/misc_from_internet'
 
 
 def delete_unwanted_files(root_dir):
@@ -10,7 +10,7 @@ def delete_unwanted_files(root_dir):
     for dirpath, _, filenames in os.walk(root_dir):
         for filename in filenames:
             if (filename.lower() == 'thumbs.db' or
-                    filename.lower().startswith('albumart') or
+                    filename.lower().startswith('facetile') or
                     filename.lower().endswith('.aae')):
                 file_path = os.path.join(dirpath, filename)
                 try:

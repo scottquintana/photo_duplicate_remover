@@ -3,14 +3,11 @@ import shutil
 import re
 
 # Paths
-ROOT_DIR = '/run/media/scottquintana/BackupDrive2/final'  # Directory where your final folders are
-THUMBNAILS_DIR = '/run/media/scottquintana/BackupDrive2/final/thumbnails'  # Directory to move thumbnails
+ROOT_DIR = '/Volumes/Photo backup/final'  # Directory where your final folders are
+THUMBNAILS_DIR = '/Volumes/Photo backup/final/thumbnails'  # Directory to move thumbnails
 
 # Regular expression to match folders with exactly 21 characters, no spaces or underscores
 THUMBNAIL_FOLDER_PATTERN = re.compile(r'^(?=.{22}$)[^\s_]*$')
-
-
-
 
 
 def create_thumbnails_dir():
